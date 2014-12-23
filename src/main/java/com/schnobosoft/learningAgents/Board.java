@@ -2,16 +2,21 @@ package com.schnobosoft.learningAgents;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 
 import com.schnobosoft.learningAgents.Agent.Rule;
 
 /**
+ * A quadratic board of n x n fields.
+ * 
  * @author Carsten Schnober
  *
  */
 public class Board
 {
+    private static final Locale LOCALE = Locale.US;
     private Field[][] board;
+
 
     /**
      * Default constructor: creates a board with x*x fields and assigns a new agent on each field.
@@ -137,7 +142,7 @@ public class Board
                     similarities[i] = agent.similarity(neighbour);
                     i++;
                 }
-                System.out.printf("%.4f ", mean(similarities));
+                System.out.printf(LOCALE, "%.4f ", mean(similarities));
             }
             System.out.println();
         }
