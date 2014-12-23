@@ -14,7 +14,7 @@ public class Game
     }
 
     private static final int N_PRINTS = 100;
-    private static final int DEFAULT_FIELDSIZE = 10; // field dimensionality
+    private static final int DEFAULT_FIELD_DIMENSIONALITY = 10; // field dimensionality
     private static final Output output = Output.AGENTS;
     protected static final int DEFAULT_N_EVENTS = 4; // number of events/signals
 
@@ -25,7 +25,7 @@ public class Game
 
     Game(int rounds)
     {
-        board = new Board(DEFAULT_FIELDSIZE);
+        board = new Board(DEFAULT_FIELD_DIMENSIONALITY);
         this.rounds = rounds;
         random = new Random();
         printInterval = rounds / N_PRINTS;

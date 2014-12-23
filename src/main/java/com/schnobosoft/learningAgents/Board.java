@@ -17,20 +17,18 @@ public class Board
     private static final Locale LOCALE = Locale.US;
     private Field[][] board;
 
-
     /**
      * Default constructor: creates a board with x*x fields and assigns a new agent on each field.
      * 
-     * @param boardSize
+     * @param boardDimension
      *            the board dimensionality
      */
-    public Board(int boardSize)
+    public Board(int boardDimension)
     {
-        board = new Field[boardSize][boardSize];
-        for (int x = 0; x < boardSize; x++) {
-            for (int y = 0; y < boardSize; y++) {
-                board[x][y] = new Field();
-                board[x][y].setAgent(new Agent(Game.DEFAULT_N_EVENTS));
+        board = new Field[boardDimension][boardDimension];
+        for (int x = 0; x < boardDimension; x++) {
+            for (int y = 0; y < boardDimension; y++) {
+                board[x][y] = new Field(new Agent(Game.DEFAULT_N_EVENTS));
             }
         }
     }
@@ -49,10 +47,18 @@ public class Board
      * @param y
      *            the y coordinate
      * @return the {@link Field} object at the given coordinates
+     * @throws IllegalArgumentException
+     *             if the coordinates lie outside the board boundaries (i.e. are less than 0 or
+     *             larger than board size - 1)
      */
     public Field getField(int x, int y)
     {
-        return board[x][y];
+        if (x < 0 || x >= getBoardSize() || y < 0 || y >= getBoardSize()) {
+            throw new IllegalArgumentException();
+        }
+        else {
+            return board[x][y];
+        }
     }
 
     /**
