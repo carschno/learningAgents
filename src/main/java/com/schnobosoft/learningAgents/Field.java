@@ -10,7 +10,11 @@ public class Field
 {
     private Agent agent; // the agent living in the field
 
-    public Field(Agent agent)
+    /**
+     * @param agent
+     *            the {@link Agent} to populate this field.
+     */
+    Field(Agent agent)
     {
         this.agent = agent;
     }
