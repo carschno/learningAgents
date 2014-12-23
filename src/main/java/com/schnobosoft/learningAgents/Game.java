@@ -8,8 +8,14 @@ import java.util.Random;
  */
 public class Game
 {
+    private enum Output
+    {
+        AGENTS, SIMILARITIES, EVENT
+    }
+
     private static final int N_PRINTS = 100;
     private static final int DEFAULT_FIELDSIZE = 10; // field dimensionality
+    private static final Output output = Output.AGENTS;
     protected static final int DEFAULT_N_EVENTS = 4; // number of events/signals
 
     private Board board;
@@ -40,12 +46,27 @@ public class Game
                 }
             }
             if (round % printInterval == 0) {
-                System.out.printf("Round %d/%d%n", round, rounds);
-                // board.printBoard();
-                board.printNeighbourSimilarities();
-                System.out.println();
+                printOutput(round);
+
             }
         }
+    }
+
+    private void printOutput(int round)
+    {
+        System.out.printf("Round %d/%d%n", round, rounds);
+        switch (output) {
+        case AGENTS:
+            board.printBoard();
+            break;
+        case SIMILARITIES:
+            board.printNeighbourSimilarities();
+            break;
+        case EVENT:
+            board.printBoard(0);
+            break;
+        }
+        System.out.println();
     }
 
     /**
@@ -53,7 +74,7 @@ public class Game
      */
     public static void main(String[] args)
     {
-        Game game = new Game(10000);
+        Game game = new Game(1000);
         game.run();
     }
 
