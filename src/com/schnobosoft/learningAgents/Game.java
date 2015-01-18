@@ -8,16 +8,13 @@ import java.util.Random;
  */
 public class Game
 {
-    private enum Output
-    {
-        AGENTS, SIMILARITIES, EVENT, LANGUAGES
-    }
+    private static final int N_ROUNDS = 1000;
 
     private static final int N_PRINTS = 100;
-    private static final int DEFAULT_FIELD_DIMENSIONALITY = 10; // field dimensionality
-    private static final Output output = Output.LANGUAGES;
-    private static final int N_EVENTS = 1;
-    private static final int N_SIGNALS = 2;
+    private static final int DEFAULT_FIELD_DIMENSIONALITY = 20; // field dimensionality
+    private static final Board.Output outputMode = Board.Output.LANGUAGES;
+    private static final int N_EVENTS = 4;
+    private static final int N_SIGNALS = 4;
 
     private Board board;
     private int rounds;
@@ -38,54 +35,25 @@ public class Game
             /* iterate over fields */
             for (int x = 0; x < board.getBoardSize(); x++) {
                 for (int y = 0; y < board.getBoardSize(); y++) {
-                    int event = random.nextInt(getEvents());
+                    int event = random.nextInt(getNumberOfEvents());
                     int signal = board.getField(x, y).getAgent().speak(event);
 
-                    for (Agent listener : board.neighbourAgents(x, y)) {
-                        listener.hear(event, signal);
+                    for (Agent neighbour : board.neighbourAgents(x, y)) {
+                        neighbour.hear(event, signal);
                     }
                 }
             }
             if (round % printInterval == 0) {
-                printOutput(round);
-
+                System.out.printf("Round %d/%d%n", round, rounds);
+                board.printBoard(outputMode);
             }
         }
-    }
-
-    private void printOutput(int round)
-    {
-        System.out.printf("Round %d/%d%n", round, rounds);
-        switch (output) {
-        case AGENTS:
-            board.printBoard();
-            break;
-        case SIMILARITIES:
-            board.printNeighbourSimilarities();
-            break;
-        case EVENT:
-            board.printBoard(0);
-            break;
-        case LANGUAGES:
-            board.printLanguages();
-            break;
-        }
-        System.out.println();
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args)
-    {
-        Game game = new Game(10000);
-        game.run();
     }
 
     /**
      * @return the number of events
      */
-    public static int getEvents()
+    public static int getNumberOfEvents()
     {
         return N_EVENTS;
     }
@@ -93,9 +61,18 @@ public class Game
     /**
      * @return the number of signals
      */
-    public static int getSignals()
+    public static int getNumberOfSignals()
     {
         return N_SIGNALS;
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        Game game = new Game(N_ROUNDS);
+        game.run();
     }
 
 }

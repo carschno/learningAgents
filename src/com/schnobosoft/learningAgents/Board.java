@@ -14,8 +14,29 @@ import com.schnobosoft.learningAgents.Agent.Rule;
  */
 public class Board
 {
+    /**
+     * Define an output mode for printing the board.
+     */
+    public enum Output
+    {
+        /**
+         * print all the agents (signal tables)
+         */
+        AGENTS, /**
+         * print the similarities to neighbour fields
+         */
+        SIMILARITIES, /**
+         * print the signal emitted for a specific event
+         */
+        EVENT, /**
+         * print the 'language' for each field.
+         */
+        LANGUAGES
+    }
+
     private static final Locale LOCALE = Locale.US;
     private Field[][] board;
+    private int[][] boardStatus;
 
     /**
      * Default constructor: creates a board with x*x fields and assigns a new agent on each field.
@@ -26,9 +47,13 @@ public class Board
     public Board(int boardDimension)
     {
         board = new Field[boardDimension][boardDimension];
+        boardStatus = new int[boardDimension][boardDimension];
+
         for (int x = 0; x < boardDimension; x++) {
             for (int y = 0; y < boardDimension; y++) {
-                board[x][y] = new Field(new Agent(Game.getEvents(), Game.getSignals()));
+                board[x][y] = new Field(new Agent(Game.getNumberOfEvents(),
+                        Game.getNumberOfSignals()));
+                boardStatus[x][y] = -1;
             }
         }
     }
@@ -79,7 +104,8 @@ public class Board
 
     private Collection<Field> neighbourFields(int x, int y)
     {
-        Collection<Field> neighbours = new ArrayList<>(8);
+        int maxNumNeighbours = 8;
+        Collection<Field> neighbours = new ArrayList<>(maxNumNeighbours);
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
                 if (!(i == x && j == y) && i >= 0 && j >= 0 && i < getBoardSize()
@@ -97,7 +123,7 @@ public class Board
      * @param event
      *            an event index
      */
-    public void printBoard(int event)
+    private void printSignals(int event)
     {
         printColumnHeaders();
         for (int y = 0; y < getBoardSize(); y++) {
@@ -120,46 +146,100 @@ public class Board
     }
 
     /**
+     * Print the board
+     * 
+     * @param mode
+     *            an {@link Output} mode.
+     */
+    public void printBoard(Output mode)
+    {
+        int defaultEvent = 0; // for printout modes that only consider one event/signal pair
+
+        switch (mode) {
+        case AGENTS:
+            printAgents();
+            break;
+        case SIMILARITIES:
+            printNeighbourSimilarities();
+            break;
+        case EVENT:
+            printSignals(defaultEvent);
+            break;
+        case LANGUAGES:
+            printLanguages(defaultEvent);
+            break;
+        }
+        System.out.println();
+    }
+
+    /**
      * For each field, print the agent's signal Table.
      */
-    public void printBoard()
+    private void printAgents()
     {
         for (int y = 0; y < getBoardSize(); y++) {
             for (int x = 0; x < getBoardSize(); x++) {
-                Agent agent = board[x][y].getAgent();
-                System.out.print(agent.toString() + " ");
+                System.out.print(board[x][y].getAgent().toString() + " ");
             }
             System.out.println();
         }
     }
 
     /**
-     * Print the board encoded by 'language': marks each agent by a symbol representing its
+     * For each field, print the 'language': represent each agent by a symbol representing its
      * 'language'.
+     * 
+     * @param previousBoardStatus
+     *            a matrix of signals emitted for the previous board in order to measure the
+     *            changes.
      */
-    public void printLanguages()
+    private void printLanguages(int event)
     {
-        char[] symbols = new char[] { 'X', 'O' };
+        assert Game.getNumberOfEvents() == 1;
 
-        assert Game.getEvents() == 1 && Game.getSignals() <= 2;
-
-        int event = 0;
+        int[][] newBoardStatus = getBoardStatus(event, Rule.MAX);
+        System.out.printf("Changes: %.2f%%\n",
+                (1d - boardSimilarity(boardStatus, newBoardStatus)) * 100);
 
         for (int y = 0; y < getBoardSize(); y++) {
             for (int x = 0; x < getBoardSize(); x++) {
-                Agent agent = board[x][y].getAgent();
-                int signal = agent.getSignal(event, Rule.MAX);
-                char symbol = symbols[signal];
-                System.out.print(symbol + " ");
+                char output = (char) (65 + newBoardStatus[x][y]);
+                System.out.print(output + " ");
             }
             System.out.println();
         }
+        boardStatus = newBoardStatus;
+    }
+
+    private int[][] getBoardStatus(int event, Rule rule)
+    {
+        int[][] status = new int[getBoardSize()][getBoardSize()];
+        for (int y = 0; y < getBoardSize(); y++) {
+            for (int x = 0; x < getBoardSize(); x++) {
+                status[x][y] = board[x][y].getAgent().getSignal(event, rule);
+            }
+        }
+        return status;
+    }
+
+    private double boardSimilarity(int[][] board1, int[][] board2)
+    {
+        assert board1.length == board2.length && board1[0].length == board2[0].length;
+        int equal = 0;
+        int total = 0;
+        for (int y = 0; y < board1[0].length; y++) {
+            for (int x = 0; x < board1.length; x++) {
+                total++;
+                equal += board1[x][y] == board2[x][y] ? 1 : 0;
+            }
+        }
+        return (double) equal / (double) total;
     }
 
     /**
      * For each field, print the agent's average similarity to all its neighbours.
      */
-    public void printNeighbourSimilarities()
+    private void printNeighbourSimilarities()
     {
         for (int y = 0; y < getBoardSize(); y++) {
             for (int x = 0; x < getBoardSize(); x++) {
@@ -183,7 +263,7 @@ public class Board
      */
     public static double mean(double[] doubleArray)
     {
-        double sum = 0;
+        double sum = 0d;
         for (int i = 0; i < doubleArray.length; i++) {
             sum += doubleArray[i];
         }
