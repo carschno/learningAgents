@@ -28,7 +28,7 @@ public class Board
         board = new Field[boardDimension][boardDimension];
         for (int x = 0; x < boardDimension; x++) {
             for (int y = 0; y < boardDimension; y++) {
-                board[x][y] = new Field(new Agent(Game.DEFAULT_N_EVENTS));
+                board[x][y] = new Field(new Agent(Game.getEvents(), Game.getSignals()));
             }
         }
     }

@@ -51,29 +51,29 @@ public class Agent
      * @param events
      *            the number of events/signals to be defined
      */
-    Agent(int events)
+    Agent(int events, int signals)
     {
         random = new Random();
         rule = DEFAULT_RULE;
-        initSignalTable(events);
+        initSignalTable(events, signals);
     }
 
-    Agent(int events, Rule rule)
+    Agent(int events, int signals, Rule rule)
     {
         random = new Random();
         this.rule = rule;
-        initSignalTable(events);
+        initSignalTable(events, signals);
     }
 
-    private void initSignalTable(int events)
+    private void initSignalTable(int events, int signals)
     {
-        signalTable = new int[events][events];
+        signalTable = new int[events][signals];
         for (int e = 0; e < events; e++) {
-            for (int s = 0; s < events; s++) {
+            for (int s = 0; s < signals; s++) {
                 signalTable[e][s] = random.nextInt(MAX_INIT_VALUE);
             }
         }
-        normalizedSignalTable = new double[events][events];
+        normalizedSignalTable = new double[events][signals];
         computeNormalizedSignalTable();
     }
 
@@ -92,7 +92,7 @@ public class Agent
      */
     public int getSignal(int event, Rule rule)
     {
-        if (event < 0 || event >= signalTable.length) {
+        if (event < 0 || event >= getNumEvents()) {
             throw new IllegalArgumentException();
         }
         else {
@@ -113,7 +113,7 @@ public class Agent
     {
         int maxValue = -1;
         int maxArg = -1;
-        for (int i = 0; i < signalTable.length; i++) {
+        for (int i = 0; i < getNumSignals(); i++) {
             int value = signalTable[event][i];
             if (value > maxValue) {
                 maxValue = value;
@@ -127,7 +127,7 @@ public class Agent
     {
         double maxValue = -1;
         int maxArg = -1;
-        for (int i = 0; i < signalTable.length; i++) {
+        for (int i = 0; i < getNumSignals(); i++) {
             double value = signalTable[event][i] * random.nextDouble();
             if (value > maxValue) {
                 maxValue = value;
@@ -139,7 +139,7 @@ public class Agent
 
     private int getSignalRandom(int event)
     {
-        return random.nextInt(signalTable.length);
+        return random.nextInt(getNumSignals());
     }
 
     /**
@@ -182,7 +182,7 @@ public class Agent
     {
         StringBuffer sb = new StringBuffer();
         sb.append("[");
-        for (int event = 0; event < signalTable.length; event++) {
+        for (int event = 0; event < getNumEvents(); event++) {
             sb.append(String.format("%d:%d, ", event, getSignal(event, Rule.MAX)));
         }
         sb.setLength(sb.length() - 2);
@@ -200,7 +200,7 @@ public class Agent
     public double similarity(Agent agent)
     {
         double similarity = 1d;
-        for (int event = 0; event < signalTable.length; event++) {
+        for (int event = 0; event < getNumEvents(); event++) {
             similarity *= similarityEvent(agent, event);
         }
         return similarity;
@@ -221,7 +221,7 @@ public class Agent
         double magnitude1 = 0d;
         double magnitude2 = 0d;
 
-        for (int i = 0; i < signalTable.length; i++) {
+        for (int i = 0; i < getNumSignals(); i++) {
             dotProduct += normalizedSignalTable[event][i]
                     * agent2.getNormalizedSignalTable()[event][i];
             magnitude1 += Math.pow(normalizedSignalTable[event][i], 2);
@@ -238,14 +238,14 @@ public class Agent
      */
     private void computeNormalizedSignalTable()
     {
-        for (int event = 0; event < signalTable.length; event++) {
-            int eventTotal = 0;
-            for (int signal = 0; signal < signalTable.length; signal++) {
-                eventTotal += signalTable[event][signal];
+        for (int event = 0; event < getNumEvents(); event++) {
+            int eventSum = 0;
+            for (int signal = 0; signal < getNumEvents(); signal++) {
+                eventSum += signalTable[event][signal];
             }
-            for (int signal = 0; signal < signalTable.length; signal++) {
-                normalizedSignalTable[event][signal] = (double) signalTable[event][signal]
-                        / (double) eventTotal;
+            for (int signal = 0; signal < getNumSignals(); signal++) {
+                normalizedSignalTable[event][signal] =
+                        (double) signalTable[event][signal] / (double) eventSum;
             }
         }
     }
@@ -253,5 +253,15 @@ public class Agent
     private double[][] getNormalizedSignalTable()
     {
         return normalizedSignalTable;
+    }
+
+    private int getNumSignals()
+    {
+        return signalTable[0].length;
+    }
+
+    private int getNumEvents()
+    {
+        return signalTable.length;
     }
 }

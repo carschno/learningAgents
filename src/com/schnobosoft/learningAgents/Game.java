@@ -16,7 +16,8 @@ public class Game
     private static final int N_PRINTS = 100;
     private static final int DEFAULT_FIELD_DIMENSIONALITY = 10; // field dimensionality
     private static final Output output = Output.AGENTS;
-    protected static final int DEFAULT_N_EVENTS = 4; // number of events/signals
+    private static final int N_EVENTS = 4;
+    private static final int N_SIGNALS = 4;
 
     private Board board;
     private int rounds;
@@ -37,7 +38,7 @@ public class Game
             /* iterate over fields */
             for (int x = 0; x < board.getBoardSize(); x++) {
                 for (int y = 0; y < board.getBoardSize(); y++) {
-                    int event = random.nextInt(DEFAULT_N_EVENTS);
+                    int event = random.nextInt(getEvents());
                     int signal = board.getField(x, y).getAgent().speak(event);
 
                     for (Agent listener : board.neighbourAgents(x, y)) {
@@ -76,6 +77,22 @@ public class Game
     {
         Game game = new Game(1000);
         game.run();
+    }
+
+    /**
+     * @return the number of events
+     */
+    public static int getEvents()
+    {
+        return N_EVENTS;
+    }
+
+    /**
+     * @return the number of signals
+     */
+    public static int getSignals()
+    {
+        return N_SIGNALS;
     }
 
 }
