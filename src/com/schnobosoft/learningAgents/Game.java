@@ -8,13 +8,13 @@ import java.util.Random;
  */
 public class Game
 {
-    private static final int N_ROUNDS = 1000;
+    private static final int N_ROUNDS = 50000;
 
     private static final int N_PRINTS = 100;
     private static final int DEFAULT_FIELD_DIMENSIONALITY = 20; // field dimensionality
     private static final Board.Output outputMode = Board.Output.LANGUAGES;
-    private static final int N_EVENTS = 4;
-    private static final int N_SIGNALS = 4;
+    private static final int N_EVENTS = 2;
+    private static final int N_SIGNALS = 2;
 
     private Board board;
     private int rounds;

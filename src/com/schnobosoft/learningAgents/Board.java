@@ -36,7 +36,7 @@ public class Board
 
     private static final Locale LOCALE = Locale.US;
     private Field[][] board;
-    private int[][] boardStatus;
+    private char[][] boardStatus;
 
     /**
      * Default constructor: creates a board with x*x fields and assigns a new agent on each field.
@@ -47,13 +47,13 @@ public class Board
     public Board(int boardDimension)
     {
         board = new Field[boardDimension][boardDimension];
-        boardStatus = new int[boardDimension][boardDimension];
+        boardStatus = new char[boardDimension][boardDimension];
 
         for (int x = 0; x < boardDimension; x++) {
             for (int y = 0; y < boardDimension; y++) {
                 board[x][y] = new Field(new Agent(Game.getNumberOfEvents(),
                         Game.getNumberOfSignals()));
-                boardStatus[x][y] = -1;
+                boardStatus[x][y] = '0';
             }
         }
     }
@@ -197,13 +197,13 @@ public class Board
     {
         assert Game.getNumberOfEvents() == 1;
 
-        int[][] newBoardStatus = getBoardStatus(event, Rule.MAX);
+        char[][] newBoardStatus = getBoardStatus(Rule.MAX);
         System.out.printf("Changes: %.2f%%\n",
                 (1d - boardSimilarity(boardStatus, newBoardStatus)) * 100);
 
         for (int y = 0; y < getBoardSize(); y++) {
             for (int x = 0; x < getBoardSize(); x++) {
-                char output = (char) (65 + newBoardStatus[x][y]);
+                char output = newBoardStatus[x][y];
                 System.out.print(output + " ");
             }
             System.out.println();
@@ -211,18 +211,38 @@ public class Board
         boardStatus = newBoardStatus;
     }
 
-    private int[][] getBoardStatus(int event, Rule rule)
+    @Deprecated
+    private char[][] getBoardStatus(int event, Rule rule)
     {
-        int[][] status = new int[getBoardSize()][getBoardSize()];
+        char[][] status = new char[getBoardSize()][getBoardSize()];
         for (int y = 0; y < getBoardSize(); y++) {
             for (int x = 0; x < getBoardSize(); x++) {
-                status[x][y] = board[x][y].getAgent().getSignal(event, rule);
+                status[x][y] = (char) (65 + board[x][y].getAgent().getSignal(event, rule));
             }
         }
         return status;
     }
 
-    private double boardSimilarity(int[][] board1, int[][] board2)
+    private char[][] getBoardStatus(Rule rule)
+    {
+        assert Game.getNumberOfEvents() <= 2 && Game.getNumberOfSignals() <= 2;
+
+        char[][] status = new char[getBoardSize()][getBoardSize()];
+        for (int y = 0; y < getBoardSize(); y++) {
+            for (int x = 0; x < getBoardSize(); x++) {
+                int coefficient = 1;
+                int output = 0;
+                for (int event = 0; event < Game.getNumberOfEvents(); event++) {
+                    output += coefficient * board[x][y].getAgent().getSignal(event, rule);
+                    coefficient++;
+                }
+                status[x][y] = (char) (65 + output);
+            }
+        }
+        return status;
+    }
+
+    private double boardSimilarity(char[][] board1, char[][] board2)
     {
         assert board1.length == board2.length && board1[0].length == board2[0].length;
         int equal = 0;
