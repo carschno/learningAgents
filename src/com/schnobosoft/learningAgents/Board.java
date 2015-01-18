@@ -134,6 +134,29 @@ public class Board
     }
 
     /**
+     * Print the board encoded by 'language': marks each agent by a symbol representing its
+     * 'language'.
+     */
+    public void printLanguages()
+    {
+        char[] symbols = new char[] { 'X', 'O' };
+
+        assert Game.getEvents() == 1 && Game.getSignals() <= 2;
+
+        int event = 0;
+
+        for (int y = 0; y < getBoardSize(); y++) {
+            for (int x = 0; x < getBoardSize(); x++) {
+                Agent agent = board[x][y].getAgent();
+                int signal = agent.getSignal(event, Rule.MAX);
+                char symbol = symbols[signal];
+                System.out.print(symbol + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    /**
      * For each field, print the agent's average similarity to all its neighbours.
      */
     public void printNeighbourSimilarities()

@@ -10,14 +10,14 @@ public class Game
 {
     private enum Output
     {
-        AGENTS, SIMILARITIES, EVENT
+        AGENTS, SIMILARITIES, EVENT, LANGUAGES
     }
 
     private static final int N_PRINTS = 100;
     private static final int DEFAULT_FIELD_DIMENSIONALITY = 10; // field dimensionality
-    private static final Output output = Output.AGENTS;
-    private static final int N_EVENTS = 4;
-    private static final int N_SIGNALS = 4;
+    private static final Output output = Output.LANGUAGES;
+    private static final int N_EVENTS = 1;
+    private static final int N_SIGNALS = 2;
 
     private Board board;
     private int rounds;
@@ -66,6 +66,9 @@ public class Game
         case EVENT:
             board.printBoard(0);
             break;
+        case LANGUAGES:
+            board.printLanguages();
+            break;
         }
         System.out.println();
     }
@@ -75,7 +78,7 @@ public class Game
      */
     public static void main(String[] args)
     {
-        Game game = new Game(1000);
+        Game game = new Game(10000);
         game.run();
     }
 
